@@ -1,8 +1,6 @@
 # GeoSIFOR Connector — what's new in this version
 
-This consolidates everything changed since the last working baseline
-(the original Dialog-vs-Dock decision onward). It's meant as a single
-reference for what to actually test, not a turn-by-turn history.
+This consolidates everything changed since the last working baseline It's meant as a single reference for what to actually test, not a turn-by-turn history. Because I keep forgetting what I actually did and what I should still look at.
 
 ## Most recent: background loading, code-quality pass, multi-layer UX
 
@@ -29,8 +27,6 @@ reference for what to actually test, not a turn-by-turn history.
   dialog appears. Checked once per endpoint per session (not on every
   refresh) and only for endpoints with an available credential, to limit
   how often this triggers a network call.
-- **Select all / Unselect all**, alongside "New folder…" on right-click
-  of empty space below the list.
 - A significant internal refactor: `Endpoint`/`ServiceType` (dataclass +
   enum) replaced raw dicts and magic strings throughout; a structured
   `LoadResult` replaced a bare `(layer, error, choices)` tuple; logging
@@ -67,10 +63,6 @@ reference for what to actually test, not a turn-by-turn history.
   - **Add new endpoint** — collapsed by default.
   - Each remembers whether you left it expanded or collapsed, across
     sessions.
-- **Add new endpoint form is now a compact grid** instead of one full-width
-  field per row: Service type and Folder share a row; the Public checkbox
-  and "Add to list" button share a row. Only Label and URL get full width,
-  since those are the only fields that actually need it.
 - **Checkbox rendering fixed** — explicit styling on the tree's checkbox
   indicators so they always render as distinct, bordered boxes; they
   previously could merge into one solid block depending on the active
@@ -176,3 +168,144 @@ Worth specifically exercising rather than assuming these are solid:
   always matches what's visually on screen. The three distinct paths —
   drag onto another endpoint, drag onto a folder's row, reorder within
   the same folder — haven't all been independently confirmed.
+
+
+## Notes / things to verify against real GeoSIFOR services
+
+Tested about only 20 services (AGIF, ICNF, DGT, GNR and AML). So there might be hidden issues with other services.
+The biggest issue has been WMS, which kept breaking with every little change. I am not confident that CRS issues might be resolved at this point.
+
+- REST services in GeoSIFOR are ArcGIS Server endpoints. A bare service
+  URL (".../FeatureServer" or ".../MapServer", no trailing layer index)
+  isn't directly loadable, so the plugin queries the service's own JSON
+  metadata ("<url>?f=json") to find the actual sub-layer, the same way it
+  always has.
+- **WFS** queries GetCapabilities for just the feature type name, then
+  builds an explicit connection string
+  (`srsname='EPSG:3763' typename='...' url='...' version='auto'`).
+  `QgsProviderRegistry.instance().querySublayers()` (the same API the
+  native "Add WFS Layer" dialog calls) was tried here too, but the QGIS
+  log panel showed it triggers GDAL's stricter GMLAS schema validator,
+  which failed on a duplicate element/type declaration in GeoSIFOR's own
+  GML schema — a real problem on the server's side, not something fixable
+  by changing how the connection string is built. The lighter-weight
+  typename-only read avoids that validation path entirely.
+- **WMS and WMTS share the same builder.** Both are built as a flat,
+  URL-encoded query string, matched byte-for-byte against real working
+  source strings copied from layers loaded through QGIS's native "Add
+  WMS/WMTS Layer" dialog (the same dialog handles both). Two earlier
+  attempts at WMS (hand-parsed GetCapabilities XML, then
+  `querySublayers()`) both produced URIs the server rejected before this
+  flat format was matched exactly and confirmed working.
+- The **CRS** used is read from each layer's own declared options in
+  GetCapabilities, then picked by preferring, in order: (1) the QGIS
+  **project's own current CRS**, if the layer offers it — this is the
+  actually-correct reason to prefer a particular CRS, since it avoids
+  on-the-fly reprojection and matches the experience of someone working
+  entirely in one CRS (e.g. always in EPSG:3763) seeing layers "just
+  match" through QGIS's native dialog; (2) `EPSG:4326`, the WMS
+  specification's own default, if the project CRS isn't among the
+  layer's options; (3) whichever CRS is listed first, as a last resort.
+- **CRS inheritance fix**: at least one real WMTS layer (Ortos2018, WMS
+  1.1.1) was found failing with `unsupported srs: EPSG:4326` even though
+  its real `Available in CRS` list (per QGIS's own Layer Properties) was
+  only `EPSG:3763`/`EPSG:3857` — 4326 was never declared. The cause: WMS
+  1.1.1 lets a layer inherit CRS/SRS declared on its *parent* `<Layer>`
+  element rather than always repeating its own full list, and the CRS
+  extraction here originally only read a leaf layer's direct children,
+  missing inherited declarations entirely. For a layer that declares no
+  CRS of its own, that produced an empty list, which silently fell back
+  to a default the server didn't actually support. Fixed by walking the
+  full ancestor `<Layer>` chain and collecting CRS/SRS from all of it,
+  verified against both this case and the original COSc2025 (WMS 1.3.0,
+  CRS declared directly on the leaf) to confirm neither regressed.
+- In the discovery-based paths (REST, WFS), if there's exactly one
+  option — the normal case for GeoSIFOR, where each API is scoped to a
+  single audited layer — it's used automatically with no prompt. If
+  there's genuinely more than one, you'll be asked to pick.
+- "GeoJSON / Data API" endpoints (the plain `.../v1/dados/...` URLs) are
+  loaded directly via QGIS's OGR/GeoJSON driver — no capabilities
+  handshake needed, since these return a ready-made FeatureCollection.
+- Basic Auth is attached via `authcfg=<id>` on the data source URI for
+  every provider used here, the same pattern QGIS's native dialogs use.
+- The endpoint list, profiles, and chosen credential all live in
+  `QgsSettings`, which is per QGIS *profile*. If you use multiple
+  profiles, none of this is shared between them unless you use
+  Export/Import (which currently covers endpoints only, not profiles).
+- The "load folder as group" behaviour relies on Qt's tristate parent
+  checkbox propagation. This has not been verified against a live QGIS
+  session — if ticking a folder doesn't tick its children, that's the
+  first thing to report back.
+- Drag-and-drop reordering/refiling is the least-verified part of this
+  build — it intercepts Qt's drop event directly rather than relying on
+  the tree widget's built-in move behaviour, specifically so storage
+  always stays in sync with what's on screen. If a drag looks like it
+  didn't visually complete, or storage doesn't end up matching what you
+  dragged where, that's worth reporting with specifics (dragged what,
+  onto what).
+
+## Code structure (for anyone reading or forking the source)
+
+- `models.py` — `ServiceType` (an enum, not magic strings) and `Endpoint`
+  (a dataclass, not a raw dict). Both convert to/from plain dicts only at
+  the storage boundary in `endpoint_store.py`; everywhere else in the
+  plugin works with real typed objects.
+- `endpoint_store.py` — all persistence (`QgsSettings`, JSON underneath).
+  Validates imported JSON explicitly rather than trusting it.
+- `layer_loader.py` — turns one `Endpoint` into a real QGIS layer.
+  Returns a `LoadResult` (a small dataclass with `.layer`, `.error`,
+  `.pending_choices`) instead of a bare tuple.
+- `dock_widget.py` — the UI. Keeps a read-only snapshot of saved
+  endpoints in `self.endpoints`, refreshed every time `_refresh_list()`
+  runs; nothing mutates that snapshot directly, every change goes
+  through `endpoint_store` first. The "load selected" flow is split into
+  small steps (`_checked_endpoints`, `_split_by_credential`,
+  `_load_one_endpoint`, `_show_load_summary`) rather than one long
+  function.
+- `containers.py` / `geosifor_connector.py` — the QDialog wrapper and the
+  QGIS plugin entry point.
+- `error_handling.py` — a `@safe_slot` decorator applied to every
+  button/menu-triggered method, so an unexpected bug shows a plain
+  message instead of silently doing nothing.
+- `plugin_paths.py` — the one place the plugin's icon path is resolved.
+- Logging goes through Python's standard `logging` module under the
+  `"geosifor_connector"` logger, routed to QGIS's own Log Messages panel
+  (Plugins tab) by `__init__.py` at load time.
+
+### Background loading (QgsTask)
+
+GetCapabilities/metadata discovery (WFS typenames, WMS/WMTS layer names
+and CRS, ArcGIS sub-layer JSON) now runs on a background `QgsTask`
+instead of blocking the main/UI thread, so a slow or unresponsive
+service — a weak field connection, a government server having a bad day
+— shows up as a wait, not as QGIS appearing to hang or crash. This
+covers:
+
+- Loading a layer (`load_endpoint_async` in `layer_loader.py`), including
+  the layer-choice prompt for multi-layer services.
+- The "Multiple layers" indicator in the tree (`has_multiple_layers_async`).
+
+The actual network fetch (`_blocking_get`, still built on
+`QgsBlockingNetworkRequest`) is unchanged — what changed is that it now
+runs *inside* the background task rather than directly on the main
+thread, which is the actual mechanism that keeps the interface
+responsive. `QgsTask` objects are tracked in `dock_widget.py`'s
+`self._active_tasks` while in flight and released once their callback
+fires, since `QgsTask` requires the caller to keep its own reference or
+risk the task being garbage-collected mid-flight (a documented footgun
+in other PyQGIS plugins).
+
+What this does **not** cover: `QgsVectorLayer`'s own internal fetch for
+GeoJSON/Data API endpoints and the final tile/feature streaming for any
+already-resolved WFS/WMS/REST layer. Those happen inside QGIS's/GDAL's
+own providers after this plugin hands off a finished URI, using
+whatever async/streaming behaviour those providers already have
+natively — the same as loading any other remote layer in QGIS, not
+something specific to this plugin.
+
+### Deliberately not done (and why)
+
+- **Storage stays as one JSON blob in `QgsSettings`, not SQLite.** Fine
+  for the realistic size of a personal endpoint list; revisit only if
+  this ever needs to scale to hundreds of entries with frequent
+  concurrent writes, neither of which describes the actual use case here.
