@@ -1,0 +1,15 @@
+[general]
+name=GeoSIFOR Connector
+qgisMinimumVersion=3.16
+qgisMaximumVersion=4.99
+description=Maintain your own list of GeoSIFOR/SGIFR service endpoints (WFS, WMS, WMTS, ArcGIS REST, GeoJSON) and load any subset into the map with one click, using a single stored credential, with folders, favourites, search, and saved profiles.
+version=0.2
+author=Soraya
+email=
+about=GeoSIFOR's catalogue lives behind a JavaScript viewer with no crawlable root directory, so endpoint URLs have to be collected by hand from the viewer once each. This plugin removes the repeated cost of that: paste a URL once, label it, mark it public or restricted, file it into an optional folder, and it is saved permanently in your QGIS settings. One credential (stored via QGIS's own Authentication Manager) is attached automatically to every restricted entry. A checklist with multi-select, drag-and-drop reordering, favourites, search, and saved profiles lets you load whichever services you need into the map in one click instead of repeating the Add Connection dialog each time.
+tracker=
+repository=
+category=Web
+icon=icon.png
+experimental=True
+deprecated=False
