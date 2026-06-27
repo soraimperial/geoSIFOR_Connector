@@ -56,7 +56,7 @@ Both sections remember whether you left them expanded or collapsed, the same way
 
 ## How to get credentials and endpoints
 
-1. If you have a government-approved GeoSIFOR account: go to [PLIS](plis.sgifr.gov.pt/) and log in with your own credentials. Under the Token menu, generate a token —
+1. If you have a government-approved GeoSIFOR account: go to [PLIS](https://plis.sgifr.gov.pt/) and log in with your own credentials. Under the Token menu, generate a token —
 you're offered 3 auth types, and Basic is the recommended one for this plugin. Paste that token straight into QGIS's own authentication config editor (the + button next to the credential dropdown above) as a Basic Auth login.
 
 <img width="1772" height="933" alt="image-2" src="https://github.com/user-attachments/assets/a69f2afe-4107-47ee-89f0-90400d6c4009" />
