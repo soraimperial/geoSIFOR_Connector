@@ -20,11 +20,9 @@ This plugin doesn't change what GeoSIFOR is or how it works; it just removes the
 
 ## What it solves
 
-GeoSIFOR's catalogue is a JavaScript viewer with no crawlable root directory. Each product's service URL (WFS/WMS/REST/GeoJSON) has to be
-found by hand, once, in the viewer — but the URLs are stable afterward. Doing this through QGIS's normal "Add Connection" dialog means repeating
-the whole flow per service, even though many of them share one entity, one product family, and one Basic Auth credential.
+GeoSIFOR's catalogue is "GeoSIFOR’s web catalogue is a JavaScript-based viewer (not a crawlable index). Each product's service URL (WFS/WMS/REST/GeoJSON) has to be found by hand, once, in the viewer — but the URLs are stable afterward. Doing this through QGIS's normal "Add Connection" dialog means repeating the whole flow per service, even though many of them share one entity, one product family, and one Basic Auth credential.
 
-This plugin removes the repeated cost:
+This plugin removes the repeated cost by allowing to save and manage connections found by the user:
 - Paste a URL once, label it, mark it public/restricted, file it into a   folder — saved forever in QGIS settings (per profile).
 - Set up the Basic Auth credential once, via QGIS's own Authentication  Manager (encrypted, not stored by this plugin).
 - Tick whichever endpoints you want this session (or check a whole  folder at once), click "Add selected to map."
