@@ -4,11 +4,16 @@ qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
 description=Maintain your own list of GeoSIFOR/SGIFR service endpoints (WFS, WMS, WMTS, ArcGIS REST, GeoJSON) and load any subset into the map with one click, using a single stored credential, with folders, favourites, search, and saved profiles.
 version=0.2
-author=Soraya
-email=
-about=GeoSIFOR's catalogue lives behind a JavaScript viewer with no crawlable root directory, so endpoint URLs have to be collected by hand from the viewer once each. This plugin removes the repeated cost of that: paste a URL once, label it, mark it public or restricted, file it into an optional folder, and it is saved permanently in your QGIS settings. One credential (stored via QGIS's own Authentication Manager) is attached automatically to every restricted entry. A checklist with multi-select, drag-and-drop reordering, favourites, search, and saved profiles lets you load whichever services you need into the map in one click instead of repeating the Add Connection dialog each time.
-tracker=
-repository=
+author=Soraya Imperial
+email=sorayaimperial13@hotmail.com
+about= GeoSIFOR Connector saves and reuses GeoSIFOR/SGIFR service endpoints (WFS, WMS, WMTS, ArcGIS REST, GeoJSON) in QGIS, removing the one-URL-at-a-time cost of adding them through QGIS's standard dialogs every session.
+GeoSIFOR is the geospatial information system behind Portugal's SGIFR (Sistema de Gestão Integrada de Fogos Rurais) and coordinated by AGIF. It aggregates spatial data on rural fire from public administration, but every layer behind its viewer is its own service with its own URL and auth setup.
+This plugin: paste a URL once, label it, mark it public or restricted, file it into an optional folder, then saved permanently in QGIS settings. One credential, via QGIS's own Authentication Manager, is attached automatically to every restricted entry. A checklist with multi-select, drag-and-drop reordering, favourites, search, and saved profiles loads whichever services you need in one click.
+
+It can use public-only endpoints, or require a GeoSIFOR/PLIS account for restrict-access endpoints. Not an official AGIF/SGIFR tool.
+   tracker=https://github.com/soraimperial/geoSIFOR_Connector/issues
+   repository=https://github.com/soraimperial/geoSIFOR_Connector
+   homepage=https://github.com/soraimperial/geoSIFOR_Connector
 category=Web
 icon=icon.png
 experimental=True

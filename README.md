@@ -17,6 +17,9 @@ This plugin doesn't change what GeoSIFOR is or how it works; it just removes the
 > [!Warning]  
 > Built independently to make working with GeoSIFOR's services in QGIS faster. Not an official AGIF/SGIFR tool.
 
+> [!Warning]  
+> Tool development assisted with AI (Claude Code on VSC).
+
 
 ## What it solves
 
