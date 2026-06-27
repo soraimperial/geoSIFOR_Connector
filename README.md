@@ -20,7 +20,7 @@ This plugin doesn't change what GeoSIFOR is or how it works; it just removes the
 
 ## What it solves
 
-GeoSIFOR's catalogue is "GeoSIFOR’s web catalogue is a JavaScript-based viewer (not a crawlable index). Each product's service URL (WFS/WMS/REST/GeoJSON) has to be found by hand, once, in the viewer — but the URLs are stable afterward. Doing this through QGIS's normal "Add Connection" dialog means repeating the whole flow per service, even though many of them share one entity, one product family, and one Basic Auth credential.
+GeoSIFOR's catalogue is a JavaScript-based viewer (not a crawlable index). Each product's service URL (WFS/WMS/REST/GeoJSON) has to be found by hand, once, in the viewer — but the URLs are stable afterward. Doing this through QGIS's normal "Add Connection" dialog means repeating the whole flow per service, even though many of them share one entity, one product family, and one Basic Auth credential.
 
 This plugin removes the repeated cost by allowing to save and manage connections found by the user:
 - Paste a URL once, label it, mark it public/restricted, file it into a   folder — saved forever in QGIS settings (per profile).
@@ -31,10 +31,10 @@ This plugin removes the repeated cost by allowing to save and manage connections
 
 ## Install
 
-1. Find your QGIS profile's plugin folder and copy the geosifor_connector folder there.
+1. Use the install .zip option in Plugin Manager.
+2. Find your QGIS profile's plugin folder and copy the geosifor_connector folder there.
    - Linux: `~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/`
    - Windows: `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\`
-2. Use the install .zip option in Plugin Manager.
 3. [Maybe in the future] Install it through the Plugin Repo.
 
 The Plugin will be displayed under the "Web" tab or, alternatively, somewhere in your toolbars.
