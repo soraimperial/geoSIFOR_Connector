@@ -66,7 +66,7 @@ you're offered 3 auth types, and Basic is the recommended one for this plugin. P
 
 <img width="1747" height="806" alt="image-3" src="https://github.com/user-attachments/assets/31854bc5-85b5-4f66-b07b-56fc4a0b0229" />
 
-4. If you don't have a government-approved account: you can stillreach GeoSIFOR's public endpoints. Go to [GeoSIFOR](geosifor.sgifr.gov.pt), click the
+4. If you don't have a government-approved account: you can stillreach GeoSIFOR's public endpoints. Go to [GeoSIFOR](https://geosifor.sgifr.gov.pt/), click the
 cogwheel/info button on whichever layer you want, and copy its service URL from there. Only layers marked Public are reachable this way —
 mark the endpoint as "Public" in the add-endpoint form, since no credential will work for it regardless.
 
